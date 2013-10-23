@@ -158,7 +158,7 @@ class ClassInfo
         );
         $php->move(-1)->revWhile($allow)->move();
 
-        $mods = [];
+        $mods = array();
         while (true) {
             $token = $php->GetToken();
             $php->move();
