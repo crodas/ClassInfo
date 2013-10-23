@@ -1,0 +1,19 @@
+{
+    "name": "crodas/class-info",
+    "description": "Get classes and functions defined in a given file",
+    "authors": [
+        {
+            "name": "César D. Rodas",
+            "email": "crodas@php.net"
+        }
+    ],
+    "license": "BSD-4-Clause",
+    "require": {
+
+    },
+    "autoload": {
+        "psr-0": {
+            "crodas": "lib/"
+        }
+    }
+}
