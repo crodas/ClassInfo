@@ -49,7 +49,7 @@ class Parser
     protected $namespace  = "";
     
     protected $level = 0;
-    protected $customStack = [];
+    protected $customStack = array();
 
     public function reset()
     {
@@ -66,7 +66,7 @@ class Parser
     public function getStackObject()
     {
         if (empty($this->customStack[$this->level])) {
-            return [];
+            return array();
         }
         return $this->customStack[$this->level];
     }
