@@ -128,10 +128,12 @@ class ClassInfo
             T_STATIC, T_ABSTRACT, T_FINAL, T_CLASS, T_FUNCTION, T_VARIABLE,
             T_VAR,
         );
+
         $start = $php->getOffset();
         $php->move(-1)->revWhile($allow);
         $token = $php->GetToken();
         $php->setOffset($start);
+
         if ($token[0] == T_DOC_COMMENT) {
             $object->setPHPDoc($token[1]);
             $this->phpdocs[] = $object;

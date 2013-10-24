@@ -205,6 +205,7 @@ class Parser
             switch ($value) {
             case T_CURLY_OPEN:
                 $this->stack[] = T_VARIABLE;
+                $this->level++;
                 break;
             case '{':
                 $x = $i;
