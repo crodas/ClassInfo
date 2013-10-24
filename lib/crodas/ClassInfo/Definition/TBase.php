@@ -111,6 +111,16 @@ class TBase
     {
         return $this->file;
     }
+    
+    public function getMods()
+    {
+        $mods = array();
+        foreach ($this->mods as $token) {
+            $mods[] = substr(strtolower(token_name($token)), 2);
+        }
+
+        return $mods;
+    }
 
     public function setMods(Array $mods)
     {
