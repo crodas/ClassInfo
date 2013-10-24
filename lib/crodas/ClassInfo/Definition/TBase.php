@@ -107,6 +107,11 @@ class TBase
         return true;
     }
 
+    public function getFile()
+    {
+        return $this->file;
+    }
+
     public function setMods(Array $mods)
     {
         $this->mods = $mods;

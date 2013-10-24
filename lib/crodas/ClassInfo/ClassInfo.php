@@ -191,6 +191,10 @@ class ClassInfo
             ->moveWhile(array(T_WHITESPACE));
 
         $name = $php->GetToken();
+        if (!is_array($name)) {
+            // a closure
+            return;
+        }        
         $name = $name[1];
         if (empty($parent)) {
             // no method
@@ -265,7 +269,7 @@ class ClassInfo
                 $type = $token[1];
             }
             $parentClass = $this->getClassObject($this->getNamespace($php));
-            $parentClass->setType($type == 'implements' ? 'interface' : 'class');
+            $parentClass->setType($type == 'implements' ? 'interface' : $class->getType());
             $class->addDependency($type, $parentClass);
             $token = $php->getToken();
         }
