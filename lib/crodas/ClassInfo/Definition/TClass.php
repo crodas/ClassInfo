@@ -69,7 +69,7 @@ class TClass extends TBase
     {
         $type = strtolower($type);
         if (empty($this->deps[$type])) {
-            $this->deps[$type] = [];
+            $this->deps[$type] = array();
         }
         $this->deps[$type][] = $name;
         return $this;
@@ -78,7 +78,7 @@ class TClass extends TBase
     public function getInterfaces()
     {
         if (empty($this->deps['implements'])) {
-            return [];
+            return array();
         }
 
         return $this->deps['implements'];
@@ -114,7 +114,7 @@ class TClass extends TBase
     public function getTraits()
     {
         if (empty($this->deps['trait'])) {
-            return [];
+            return array();
         }
 
         return $this->deps['trait'];
