@@ -45,12 +45,14 @@ class TClass extends TBase
 
     public function addProperty(TProperty $var)
     {
+        $var->class = $this;
         $this->properties[$var->name] = $var;
         return $this;
     }
 
     public function addMethod(TFunction $function)
     {
+        $function->class = $this;
         $this->methods[strtolower($function->name)] = $function;
         return $this;
     }

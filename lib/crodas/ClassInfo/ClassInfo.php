@@ -46,6 +46,7 @@ class ClassInfo
     protected $namespace;
     protected $classes   = array();
     protected $functions = array();
+    protected $phpdocs   = array();
 
     public function __construct($file = '')
     {
@@ -120,7 +121,7 @@ class ClassInfo
         return $this->classes[$index];
     }
 
-    protected function getPHPDoc($php)
+    protected function getPHPDoc($php, $object)
     {
         $allow = array(
             T_WHITESPACE, T_PUBLIC, T_PRIVATE, T_PROTECTED, 
@@ -132,10 +133,16 @@ class ClassInfo
         $token = $php->GetToken();
         $php->setOffset($start);
         if ($token[0] == T_DOC_COMMENT) {
-            return $token[1];
+            $object->setPHPDoc($token[1]);
+            $this->phpdocs[] = $object;
+            return true;
         }
-        return '';
+        return false;
+    }
 
+    public function getPHPDocs()
+    {
+        return $this->phpdocs;
     }
 
     protected function getNamespace($php)
@@ -178,7 +185,7 @@ class ClassInfo
             $name = $name[1];
             $mods = $this->getModifiers($php->revWhileNot(array(T_WHITESPACE)));
             $property = new Definition\TProperty($name, $this->file);
-            $property->setPHPDoc($this->getPHPDoc($php));
+            $this->getPHPDoc($php, $property);
             $property->setMods($mods);
             $parent->addProperty($property);
         }
@@ -202,7 +209,7 @@ class ClassInfo
         }
 
         $function = new Definition\TFunction($name, $this->file);
-        $function->setPHPDoc($this->getPHPDoc($php));
+        $this->getPHPDoc($php, $function);
         $php->pushStackObject($function, 1);
 
         if ($parent instanceof Definition\TClass) {
@@ -242,7 +249,7 @@ class ClassInfo
             if ($parent instanceof Definition\TClass) {
                 do {
                     $trait = $this->getClassObject($this->getNamespace($php));
-                    $trait->setPHPDoc($this->getPHPDoc($php));
+                    $this->getPHPDoc($php, $trait);
                     $trait->setType('trait');
                     $parent->addDependency('trait', $trait);
                 } while ($php->getToken() == ',');
@@ -256,7 +263,7 @@ class ClassInfo
         $token = $php->whileNot(array(T_STRING))
             ->getToken();
         $class = $this->getClassObject($token[1]);
-        $class->setPHPDoc($this->getPHPDoc($php));
+        $this->getPHPDoc($php, $class);
         $class->setFile($this->file);
         $class->setType($type[1]);
 
