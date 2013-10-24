@@ -91,6 +91,7 @@ class ClassInfo
     {
         $this->namespace    = "";
         $this->file         = $file;
+        $this->alias        = array();
 
         $this->parser->setFile($file);
         return $this;
