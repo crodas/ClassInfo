@@ -129,5 +129,10 @@ class TClass extends TBase
         return $this->deps['extends'][0];
     }
 
+    public function __toString()
+    {
+        return $this->name;
+    }
+
 }
 
