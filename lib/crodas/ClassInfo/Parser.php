@@ -56,6 +56,7 @@ class Parser
         $this->offset = 0;
         $this->total  = 0;
         $this->tokens = array();
+        $this->customStack = array();
     }
 
     public function pushStackObject($object, $offset=0)
