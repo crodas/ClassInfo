@@ -205,6 +205,7 @@ class Parser
             $value = is_array($tokens[$i]) ? $tokens[$i][0] : $tokens[$i];
             switch ($value) {
             case T_CURLY_OPEN:
+            case T_DOLLAR_OPEN_CURLY_BRACES:
                 $this->stack[] = T_VARIABLE;
                 $this->level++;
                 break;
