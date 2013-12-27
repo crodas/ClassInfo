@@ -44,6 +44,16 @@ class TBase
     protected $mods = array();
     protected $phpDoc;
 
+    public static function __set_state(Array $args)
+    {
+        $class = get_called_class();
+        $object = new $class('', '');
+        foreach ($args as $key => $value) {
+            $object->$key = $value;
+        }
+        return $object;
+    }
+
     public function __construct($name, $file = null)
     {
         $this->name = $name;
