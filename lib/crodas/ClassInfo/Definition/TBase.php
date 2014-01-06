@@ -43,6 +43,19 @@ class TBase
     protected $name;
     protected $mods = array();
     protected $phpDoc;
+    protected $line;
+
+    public function getStartLine()
+    {
+        return $this->line;
+    }
+
+    public function setStartLine($line)
+    {
+        $this->line = $line;
+        return $this;
+    }
+
 
     public static function __set_state(Array $args)
     {

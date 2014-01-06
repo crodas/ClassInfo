@@ -190,6 +190,7 @@ class ClassInfo
             $property = new Definition\TProperty($name, $this->file);
             $this->getPHPDoc($php, $property);
             $property->setMods($mods);
+            $property->setStartLine($php->getLine());
             $parent->addProperty($property);
         }
     }
@@ -222,6 +223,7 @@ class ClassInfo
             return;
         }
 
+        $function->setStartLine($php->getLine());
         $this->functions[$name] = $function;
     }
 
@@ -281,6 +283,7 @@ class ClassInfo
             $parentClass = $this->getClassObject($this->getNamespace($php));
             $parentClass->setType($type == 'implements' ? 'interface' : $class->getType());
             $class->addDependency($type, $parentClass);
+            $class->setStartLine($php->getLine());
             $token = $php->getToken();
         }
 
