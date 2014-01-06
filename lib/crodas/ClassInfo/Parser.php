@@ -204,7 +204,8 @@ class Parser
         $trait  = defined('T_TRAIT') ? T_TRAIT : -1; 
         $i = &$this->offset;
         for($i=0; $i < $this->total; $i++) {
-            $value = is_array($tokens[$i]) ? $tokens[$i][0] : $tokens[$i];
+            $value   = is_array($tokens[$i]) ? $tokens[$i][0] : $tokens[$i];
+            $content = is_array($tokens[$i]) ? $tokens[$i][1] : $tokens[$i];
             switch ($value) {
             case T_CURLY_OPEN:
             case T_DOLLAR_OPEN_CURLY_BRACES:
@@ -228,7 +229,7 @@ class Parser
                 break;
             }
 
-            $this->line += substr_count($value, "\n");
+            $this->line += substr_count($content, "\n");
 
             if (isset($this->events[$value])) {
                 $x = $i;
