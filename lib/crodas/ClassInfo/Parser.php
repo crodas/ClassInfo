@@ -43,6 +43,7 @@ class Parser
     protected $total  = 0;
     protected $events = array();
     protected $stack  = array();
+    protected $line   = 1;
     
     protected $classAlias = array();
     protected $lastClass  = NULL;
@@ -53,6 +54,7 @@ class Parser
 
     public function reset()
     {
+        $this->line   = 1;
         $this->offset = 0;
         $this->total  = 0;
         $this->tokens = array();
@@ -226,6 +228,8 @@ class Parser
                 break;
             }
 
+            $this->line += substr_count($value, "\n");
+
             if (isset($this->events[$value])) {
                 $x = $i;
                 foreach ($this->events[$value] as $callback) {
@@ -234,6 +238,11 @@ class Parser
                 $i = $x;
             }
         }
+    }
+
+    public function getLine()
+    {
+        return $this->line;
     }
 
     public function setTokens(Array $tokens)
