@@ -219,6 +219,7 @@ class ClassInfo
         if ($parent instanceof Definition\TClass) {
             $mods = $this->getModifiers($php->revWhileNot(array(T_FUNCTION)));
             $function->setMods($mods);
+            $function->setStartLine($php->getLine());
             $parent->addMethod($function);
             return;
         }
