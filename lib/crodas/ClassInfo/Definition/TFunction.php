@@ -38,5 +38,17 @@ namespace crodas\ClassInfo\Definition;
 
 class TFunction extends TBase
 {
+    protected $args;
+
+    public function setParameters(Array $args)
+    {
+        $this->args = $args;
+        return $this;
+    }
+
+    public function getParameters()
+    {
+        return $this->args;
+    }
 }
 

@@ -212,7 +212,32 @@ class ClassInfo
             $name = $this->namespace . $name;
         }
 
+        $start = $php->getOffset();
+        $php->move()
+            ->moveWhile(array(T_WHITESPACE));
+        $vars  = array();
+        if ($php->getToken() == "(") {
+            for ($i=1; $php->move() && $i != 0;) {
+                $token = $php->GetToken();
+                switch($token) {
+                case "(":
+                    ++$i;
+                    break;
+                case ")":
+                    --$i;
+                    break;
+                default:
+                    if ($token[0] == T_VARIABLE) {
+                        $vars[] = $token[1];
+                    }
+                    break;
+                }
+            }
+        }
+        $php->setOffset($start);
+
         $function = new Definition\TFunction($name, $this->file);
+        $function->setParameters($vars);
         $this->getPHPDoc($php, $function);
         $php->pushStackObject($function, 1);
 

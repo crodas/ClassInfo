@@ -44,6 +44,7 @@ class ParseTest extends \phpunit_framework_testcase
 
         $functions = $parser->getClass('xxx\yy\foobar')->getMethods();
         $this->assertEquals(count($functions), 2);
+        $this->assertEquals(array('$x', '$y'), $functions['xx']->getParameters());
 
         $functions = $parser->getClass('xxx\yy\foo')->getMethods();
         $this->assertEquals(count($functions), 1);

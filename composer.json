@@ -9,9 +9,6 @@
     ],
     "version": "v0.1.10",
     "license": "BSD-4-Clause",
-    "require": {
-
-    },
     "autoload": {
         "psr-0": {
             "crodas": "lib/"
