@@ -5,7 +5,7 @@ namespace xxx\yy;
 use xxx\yy\foobr\stdclass;
 
 interface foobar {
-    public static function xx();
+    public static function xx($x, $y = array());
     public static function yy();
 }
 
