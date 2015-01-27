@@ -186,6 +186,10 @@ class ClassInfo
         if ($parent instanceof Definition\TClass) {
             $name = $php->getToken();
             $name = $name[1];
+            $prev = $php->move(-1)->getToken();
+            if ($prev[0] != 377) {
+                return;
+            }
             $mods = $this->getModifiers($php->revWhileNot(array(T_WHITESPACE)));
             $property = new Definition\TProperty($name, $this->file);
             $this->getPHPDoc($php, $property);
