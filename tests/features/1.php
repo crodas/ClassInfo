@@ -32,7 +32,7 @@ class foo extends stdclass implements foobar, xxx, zzz {
     var $xxx;
 
     /** @something */
-    public static function someName()
+    public static function someName($x)
     {
         $y = 0;
     }

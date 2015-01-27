@@ -187,7 +187,7 @@ class ClassInfo
             $name = $php->getToken();
             $name = $name[1];
             $prev = $php->move(-1)->getToken();
-            if ($prev[0] != 377) {
+            if ($prev[0] != T_WHITESPACE) {
                 return;
             }
             $mods = $this->getModifiers($php->revWhileNot(array(T_WHITESPACE)));
