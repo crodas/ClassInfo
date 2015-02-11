@@ -45,6 +45,7 @@ class TClass extends TBase
 
     public function addProperty(TProperty $var)
     {
+        $var->setFile($this->file);
         $var->class = $this;
         $this->properties[$var->name] = $var;
         return $this;
@@ -52,6 +53,7 @@ class TClass extends TBase
 
     public function addMethod(TFunction $function)
     {
+        $function->setFile($this->file);
         $function->class = $this;
         $this->methods[strtolower($function->name)] = $function;
         return $this;

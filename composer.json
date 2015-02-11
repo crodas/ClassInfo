@@ -13,5 +13,8 @@
         "psr-0": {
             "crodas": "lib/"
         }
+    },
+    "require": {
+        "nikic/php-parser": "1.1.*"
     }
 }

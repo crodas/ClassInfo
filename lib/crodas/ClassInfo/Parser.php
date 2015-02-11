@@ -36,230 +36,99 @@
 */
 namespace crodas\ClassInfo;
 
-class Parser
+use PhpParser;
+use PhpParser\Node\Stmt;
+use PhpParser\Node;
+
+class Parser extends PhpParser\NodeVisitorAbstract
 {
-    protected $tokens = array();
-    protected $offset = 0;
-    protected $total  = 0;
-    protected $events = array();
-    protected $stack  = array();
-    protected $line   = 1;
-    
-    protected $classAlias = array();
-    protected $lastClass  = NULL;
-    protected $namespace  = "";
-    
-    protected $level = 0;
-    protected $customStack = array();
-
-    public function reset()
-    {
-        $this->line   = 1;
-        $this->offset = 0;
-        $this->total  = 0;
-        $this->tokens = array();
-        $this->customStack = array();
-    }
-
-    public function pushStackObject($object, $offset=0)
-    {
-        $this->customStack[$this->level+$offset] = $object;
-    }
-
-    public function getStackObject()
-    {
-        if (empty($this->customStack[$this->level])) {
-            return array();
-        }
-        return $this->customStack[$this->level];
-    }
+    protected $classes = array();
+    protected $functions = array();
+    protected $file;
 
     public function setFile($file)
     {
-        $this->reset();
-        if (!is_readable($file)) {
-            throw new \RuntimeException("{$file} is not readable");
-        }
-        $this->setTokens(token_get_all(file_get_contents($file)));
-        $this->run();
+        $this->file = $file;
     }
 
-    public function WhileNot(Array $searchTokens)
+    public function getClasses()
     {
-        $tokens = $this->tokens;
-        for ($i = &$this->offset; $i < $this->total; $i++) {
-            if (is_array($tokens[$i])) {
-                if (in_array($tokens[$i][0], $searchTokens)) {
-                    return $this;
+        return $this->classes;
+    }
+
+    public function getFunctions()
+    {
+        return $this->functions;
+    }
+
+    public function parseFunction(Node $node, $name)
+    {
+        $function = new Definition\TFunction($name);
+        $function->setParameters($node->params);
+        $function->setPHPDoc($node->getDocComment());
+
+        return $function;
+    }
+
+    public function setMods(Node $node, Definition\TBase $object)
+    {
+        $mods = array();
+        foreach (array('isPublic', 'isPrivate', 'isProtected', 'isFinal', 'isStatic', 'isAbstract') as $check) {
+            if (is_callable(array($node, $check)) && $node->$check()) {
+                $mods[] = constant('T_' . substr(strtoupper($check), 2));
+            }
+        }
+        $object->setMods($mods);
+    }
+
+    protected function getClass($name, $type = 'class')
+    {
+        if (empty($this->classes[strtolower($name)])) {
+            $this->classes[strtolower($name)] = new Definition\TClass($name);
+        }
+        $this->classes[strtolower($name)]->setType($type);
+
+        return $this->classes[strtolower($name)];
+    }
+
+    public function enterNode(Node $node)
+    {
+        if ($node instanceof Stmt\Class_
+            || $node instanceof Stmt\Trait_
+            || $node instanceof Stmt\Interface_) {
+            $type = strtolower(get_class($node));
+            $type = substr($type, strrpos($type, "\\")+1, -1);
+            $class = $this->getClass($node->namespacedName->toString(), $type);
+            $class->setFile($this->file);
+            $class->setPHPDoc($node->getDocComment());
+            if (!empty($node->extends)) {
+                $class->addDependency('parent', $this->getClass($node->extends->toString()));
+            }
+
+            if (!empty($node->implements)) {
+                foreach ($node->implements as $interface) {
+                    $class->addDependency('interface', $this->getClass($interface->toString(), 'interface'));
                 }
-            } else if (in_array($tokens[$i], $searchTokens)) {
-                return $this;
             }
-        }
-        throw new \RuntimeException("Cannot find any of " . print_r($searchTokens, true));
-    }
 
-    public function revWhileNot(Array $searchTokens)
-    {
-        $tokens = $this->tokens;
-        for ($i = &$this->offset; $i >= 0; $i--) {
-            if (is_array($tokens[$i])) {
-                if (in_array($tokens[$i][0], $searchTokens)) {
-                    return $this;
+            foreach ($node->stmts as $stmt) {
+                if ($stmt instanceof Stmt\ClassMethod) {
+                    $method = $this->parseFunction($stmt, $stmt->name);
+                    $this->setMods($stmt, $method);
+                    $class->addMethod($method);
+                } else if ($stmt instanceof Stmt\TraitUse) {
+                    $class->addDependency('trait', $this->getClass($node->extends->toString(), 'trait'));
+                } else if ($stmt instanceof Stmt\Property) {
+                    $property = new Definition\TProperty('$'. $stmt->props[0]->name);
+                    $this->setMods($stmt, $property);
+                    $property->setPHPDoc($stmt->getDocComment());
+                    $class->addProperty($property);
                 }
-            } else if (in_array($tokens[$i], $searchTokens)) {
-                return $this;
             }
+        } else if ($node instanceof Stmt\Function_) {
+            $function = $this->parseFunction($node, $node->namespacedName->toString());
+            $this->functions[strtolower($function->getName())] = $function;
+            $function->setFile($this->file);
         }
-        throw new \RuntimeException("{revWhileNot} Cannot find any of " . print_r($searchTokens, true));
-    }
-
-    public function revWhile(Array $searchTokens)
-    {
-        $tokens = $this->tokens;
-        for ($i = &$this->offset; $i >= 0; $i--) {
-            if (is_array($tokens[$i])) {
-                if (!in_array($tokens[$i][0], $searchTokens)) {
-                    return $this;
-                }
-            } else if (!in_array($tokens[$i], $searchTokens)) {
-                return $this;
-            }
-        }
-        throw new \RuntimeException("{revWhile} when to start " . print_r($searchTokens, true));
-    }
-
-    public function moveWhile(Array $searchTokens)
-    {
-        $tokens = $this->tokens;
-        for ($i = &$this->offset; $i < $this->total; $i++) {
-            if (is_array($tokens[$i])) {
-                if (!in_array($tokens[$i][0], $searchTokens)) {
-                    break;
-                }
-            } else if (!in_array($tokens[$i], $searchTokens)) {
-                break;
-            }
-        }
-        return $this;
-    }
-
-    public function moveWhileNot(Array $searchTokens)
-    {
-        $tokens = $this->tokens;
-        for ($i = &$this->offset; $i < $this->total; $i++) {
-            if (is_array($tokens[$i])) {
-                if (in_array($tokens[$i][0], $searchTokens)) {
-                    return $this;
-                }
-            } else if (in_array($tokens[$i], $searchTokens)) {
-                return $this;
-            }
-        }
-        throw new \RuntimeException("{moveWhileNot} Cannot find any of " . print_r($searchTokens, true));
-    }
-
-    public function move($inc = 1)
-    {
-        $this->offset += $inc;
-        return $this;
-    }
-
-    public function setOffset($int)
-    {
-        $this->offset = $int;
-    }
-
-    public function getOffset()
-    {
-        return $this->offset;
-    }
-
-    public function getStack()
-    {
-        return $this->stack;
-    }
-
-    public function getTokenType()
-    {
-        return $this->tokens[$this->offset][0];
-    }
-
-    public function getToken()
-    {
-        if (!array_key_exists($this->offset, $this->tokens)) {
-            return NULL;
-        }
-        return $this->tokens[$this->offset];
-    }
-
-    public function getTokens($start, $len)
-    {
-        return array_slice($this->tokens, $start, $len);
-    }
-
-    public function run()
-    {
-        $tokens = $this->tokens;
-        $trait  = defined('T_TRAIT') ? T_TRAIT : -1; 
-        $i = &$this->offset;
-        for($i=0; $i < $this->total; $i++) {
-            $value   = is_array($tokens[$i]) ? $tokens[$i][0] : $tokens[$i];
-            $content = is_array($tokens[$i]) ? $tokens[$i][1] : $tokens[$i];
-            switch ($value) {
-            case T_CURLY_OPEN:
-            case T_DOLLAR_OPEN_CURLY_BRACES:
-                $this->stack[] = T_VARIABLE;
-                $this->level++;
-                break;
-            case '{':
-                $x = $i;
-                $this->revWhileNot(array(
-                    T_FUNCTION, T_CLASS, T_NAMESPACE, T_IF, T_ELSE, 
-                    T_WHILE, T_FOR, T_FOREACH, T_DO, T_ELSEIF, T_INTERFACE,
-                    T_TRY, T_CATCH, $trait
-                ));
-                $this->stack[] = $tokens[$i][0];
-                $this->level++;
-                $i = $x;
-                break;
-            case '}':
-                $tok = array_pop($this->stack);
-                $this->level--;
-                break;
-            }
-
-            $this->line += substr_count($content, "\n");
-
-            if (isset($this->events[$value])) {
-                $x = $i;
-                foreach ($this->events[$value] as $callback) {
-                    call_user_func($callback, $this, $tokens[$i]);
-                }
-                $i = $x;
-            }
-        }
-    }
-
-    public function getLine()
-    {
-        return $this->line;
-    }
-
-    public function setTokens(Array $tokens)
-    {
-        $this->tokens = $tokens;
-        $this->total  = count($tokens);
-    }
-
-    public function on($event, $callback)
-    {
-        if (!is_callable($callback)) {
-            throw new \RuntimeException("{$callback} is not callable");
-        }
-        if (empty($this->events[$event])) {
-            $this->events[$event] = array();
-        }
-        $this->events[$event][] = $callback;
     }
 }
