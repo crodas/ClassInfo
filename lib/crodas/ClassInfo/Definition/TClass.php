@@ -81,11 +81,11 @@ class TClass extends TBase
 
     public function getInterfaces()
     {
-        if (empty($this->deps['implements'])) {
+        if (empty($this->deps['interface'])) {
             return array();
         }
 
-        return $this->deps['implements'];
+        return $this->deps['interface'];
     }
 
     public function getProperties()

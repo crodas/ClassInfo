@@ -91,7 +91,7 @@ class Parser extends PhpParser\NodeVisitorAbstract
         return $this->classes[strtolower($name)];
     }
 
-    public function enterNode(Node $node)
+    public function leaveNode(Node $node)
     {
         if ($node instanceof Stmt\Class_
             || $node instanceof Stmt\Trait_
@@ -120,7 +120,13 @@ class Parser extends PhpParser\NodeVisitorAbstract
                     $this->setMods($stmt, $method);
                     $class->addMethod($method);
                 } else if ($stmt instanceof Stmt\TraitUse) {
-                    $class->addDependency($this->getClass($node->extends->toString(), 'trait'));
+                    foreach ($stmt->traits as $trait) {
+                        $name = $trait->toString();
+                        if (!$trait->isFullyQualified()) {
+                            //var_dump($stmt);exit;
+                        }
+                        $class->addDependency($this->getClass($trait->toString(), 'trait'));
+                    }
                 } else if ($stmt instanceof Stmt\Property) {
                     $property = new Definition\TProperty('$'. $stmt->props[0]->name);
                     $this->setMods($stmt, $property);
