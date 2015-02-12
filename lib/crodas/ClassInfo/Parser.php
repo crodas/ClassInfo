@@ -122,9 +122,6 @@ class Parser extends PhpParser\NodeVisitorAbstract
                 } else if ($stmt instanceof Stmt\TraitUse) {
                     foreach ($stmt->traits as $trait) {
                         $name = $trait->toString();
-                        if (!$trait->isFullyQualified()) {
-                            //var_dump($stmt);exit;
-                        }
                         $class->addDependency($this->getClass($trait->toString(), 'trait'));
                     }
                 } else if ($stmt instanceof Stmt\Property) {
