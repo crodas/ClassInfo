@@ -102,12 +102,15 @@ class Parser extends PhpParser\NodeVisitorAbstract
             $class->setFile($this->file);
             $class->setPHPDoc($node->getDocComment());
             if (!empty($node->extends)) {
-                $class->addDependency('parent', $this->getClass($node->extends->toString()));
+                $parents = is_array($node->extends) ? $node->extends : array($node->extends);
+                foreach ($parents as $parent) {
+                    $class->addDependency($this->getClass($parent->toString()), 'extends');
+                }
             }
 
             if (!empty($node->implements)) {
                 foreach ($node->implements as $interface) {
-                    $class->addDependency('interface', $this->getClass($interface->toString(), 'interface'));
+                    $class->addDependency($this->getClass($interface->toString(), 'interface'));
                 }
             }
 
@@ -117,7 +120,7 @@ class Parser extends PhpParser\NodeVisitorAbstract
                     $this->setMods($stmt, $method);
                     $class->addMethod($method);
                 } else if ($stmt instanceof Stmt\TraitUse) {
-                    $class->addDependency('trait', $this->getClass($node->extends->toString(), 'trait'));
+                    $class->addDependency($this->getClass($node->extends->toString(), 'trait'));
                 } else if ($stmt instanceof Stmt\Property) {
                     $property = new Definition\TProperty('$'. $stmt->props[0]->name);
                     $this->setMods($stmt, $property);

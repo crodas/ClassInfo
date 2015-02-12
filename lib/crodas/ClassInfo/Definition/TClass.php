@@ -69,9 +69,9 @@ class TClass extends TBase
         return $this->type;
     }
 
-    public function addDependency($type, TClass $name)
+    public function addDependency(TClass $name, $type = NULL)
     {
-        $type = strtolower($type);
+        $type = $type ? $type : strtolower($name->getType());
         if (empty($this->deps[$type])) {
             $this->deps[$type] = array();
         }
