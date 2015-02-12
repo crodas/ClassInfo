@@ -46,8 +46,13 @@ class TFunction extends TBase
         return $this;
     }
 
-    public function getParameters()
+    public function getParameters($object = false)
     {
+        if (!$object) {
+            return array_map(function($a) {
+                return '$'. $a->name;
+            }, $this->args);
+        }
         return $this->args;
     }
 }
