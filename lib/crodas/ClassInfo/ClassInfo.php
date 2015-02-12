@@ -81,6 +81,8 @@ class ClassInfo
                 }
             }
         }
+
+        return $elements;
     }
 
     public function getClasses()
