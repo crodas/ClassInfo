@@ -62,6 +62,27 @@ class ClassInfo
 
     }
 
+    public function getPHPDocs()
+    {
+        $elements = array();
+        foreach ($this->getFunctions() as $function) {
+            if ($function->getPHPDoc()) {
+                $elements[] = $function;
+            }
+        }
+
+        foreach ($this->getClasses() as $class) {
+            if ($class->getPHPDoc()) {
+                $elements[] = $class;
+            }
+            foreach (array_merge($class->getProperties(), $class->getMethods()) as $element) {
+                if ($element->getPHPDoc()) {
+                    $elements[] = $element;
+                }
+            }
+        }
+    }
+
     public function getClasses()
     {
         return $this->visitor->getClasses();
