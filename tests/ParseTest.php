@@ -76,7 +76,8 @@ class ParseTest extends \phpunit_framework_testcase
         $this->assertTrue($class->isUserDefined());
         $this->assertFalse($class->isFinal());
         $this->assertFalse($class->isAbstract());
-
+        $this->assertTrue($class->getStartLine() > 1);
+        $this->assertTrue($class->getEndLine() > 1);
     }
 
     public function testMultiple()
@@ -106,6 +107,7 @@ class ParseTest extends \phpunit_framework_testcase
         $this->assertTrue($method->isStatic());
         $this->assertFalse($method->isPrivate());
         $this->assertFalse($method->isAbstract());
+        $this->assertTrue($method->getStartLine() < $method->getEndLine());
     }
 
     public function testProperties()
@@ -127,6 +129,7 @@ class ParseTest extends \phpunit_framework_testcase
         $this->assertFalse($prop->isProtected());
         $this->assertFalse($prop->isStatic());
         $this->assertFalse($prop->isPrivate());
+        $this->assertTrue($prop->getStartLine() > 1);
         $this->assertEquals('/** @foobar */', $prop->getPHPDoc());
 
         $prop = $props['$foo'];

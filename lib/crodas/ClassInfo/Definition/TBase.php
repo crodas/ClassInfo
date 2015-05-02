@@ -43,16 +43,23 @@ class TBase
     protected $name;
     protected $mods = array();
     protected $phpDoc;
-    protected $line;
+    protected $startLine;
+    protected $endLine;
 
     public function getStartLine()
     {
-        return $this->line;
+        return $this->startLine;
+    }
+
+    public function getEndLine()
+    {
+        return $this->endLine;
     }
 
     public function setStartLine($line)
     {
-        $this->line = $line;
+        $this->startLine = $line->getAttribute('startLine', -1);
+        $this->endLine   = $line->getAttribute('endLine', -1);
         return $this;
     }
 
