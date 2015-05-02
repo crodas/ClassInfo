@@ -119,15 +119,18 @@ class Parser extends PhpParser\NodeVisitorAbstract
                     $method = $this->parseFunction($stmt, $stmt->name);
                     $this->setMods($stmt, $method);
                     $class->addMethod($method);
+                    $method->setStartLine($stmt);
                 } else if ($stmt instanceof Stmt\TraitUse) {
                     foreach ($stmt->traits as $trait) {
                         $name = $trait->toString();
                         $class->addDependency($this->getClass($trait->toString(), 'trait'));
+                        $class->setStartLine($stmt);
                     }
                 } else if ($stmt instanceof Stmt\Property) {
                     $property = new Definition\TProperty('$'. $stmt->props[0]->name);
                     $this->setMods($stmt, $property);
                     $property->setPHPDoc($stmt->getDocComment());
+                    $property->setStartLine($stmt);
                     $class->addProperty($property);
                 }
             }
@@ -135,6 +138,7 @@ class Parser extends PhpParser\NodeVisitorAbstract
             $function = $this->parseFunction($node, $node->namespacedName->toString());
             $this->functions[strtolower($function->getName())] = $function;
             $function->setFile($this->file);
+            $function->setStartLine($node);
         }
     }
 }
