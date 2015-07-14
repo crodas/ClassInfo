@@ -5,7 +5,7 @@ use crodas\ClassInfo\Definition\TClass;
 use crodas\ClassInfo\Definition\TFunction;
 use crodas\ClassInfo\Definition\TProperty;
 
-class ParseTest extends \phpunit_framework_testcase
+class ParseTest extends \PHPUnit_Framework_TestCase
 {
     public function testParse()
     {
