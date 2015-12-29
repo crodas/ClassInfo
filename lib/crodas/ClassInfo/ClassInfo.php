@@ -47,7 +47,13 @@ class ClassInfo
 
     public function __construct($file = '')
     {
-        $parser        = (new ParserFactory)->create(ParserFactory::PREFER_PHP7);
+        if (class_exists('PhpParser\Parser')) {
+            // php-parser version 1
+            $parser = new PhpParser\Parser(new PhpParser\Lexer\Emulative);
+        } else {
+            // php-parser version 2
+            $parser = (new ParserFactory)->create(ParserFactory::PREFER_PHP7);
+        }
         $traverser     = new PhpParser\NodeTraverser;
         $this->visitor = new Parser;
 
