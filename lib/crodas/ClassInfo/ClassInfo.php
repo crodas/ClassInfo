@@ -52,7 +52,8 @@ class ClassInfo
             $parser = new PhpParser\Parser(new PhpParser\Lexer\Emulative);
         } else {
             // php-parser version 2
-            $parser = (new ParserFactory)->create(ParserFactory::PREFER_PHP7);
+            $parser = new ParserFactory;
+            $parser = $parser->create(ParserFactory::PREFER_PHP7);
         }
         $traverser     = new PhpParser\NodeTraverser;
         $this->visitor = new Parser;
