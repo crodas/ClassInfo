@@ -36,6 +36,7 @@
 */
 namespace crodas\ClassInfo;
 
+use PhpParser\ParserFactory;
 use PhpParser;
 
 class ClassInfo
@@ -46,7 +47,7 @@ class ClassInfo
 
     public function __construct($file = '')
     {
-        $parser        = new PhpParser\Parser(new PhpParser\Lexer\Emulative);
+        $parser        = (new ParserFactory)->create(ParserFactory::PREFER_PHP7);
         $traverser     = new PhpParser\NodeTraverser;
         $this->visitor = new Parser;
 
