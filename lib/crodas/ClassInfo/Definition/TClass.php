@@ -61,7 +61,9 @@ class TClass extends TBase
 
     public function setType($type)
     {
-        $this->type = strtolower($type);
+        if (empty($this->type)) {
+            $this->type = strtolower($type);
+        }
     }
 
     public function getType()
