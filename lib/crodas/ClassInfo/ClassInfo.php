@@ -47,6 +47,7 @@ class ClassInfo
 
     public function __construct($file = '')
     {
+        ini_set('xdebug.max_nesting_level', 3000);
         if (class_exists('PhpParser\Parser')) {
             // php-parser version 1
             $parser = new PhpParser\Parser(new PhpParser\Lexer\Emulative);
