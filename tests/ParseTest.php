@@ -110,6 +110,25 @@ class ParseTest extends PHPUnit\Framework\TestCase
         $this->assertTrue($method->getStartLine() < $method->getEndLine());
     }
 
+    public function testPHPDocs()
+    {
+        $parser = new ClassInfo();
+        $parser->parse(__DIR__ . '/features/1.php');
+        $class   = $parser->getClass('xxx\yy\foo');
+        $method  = $class->getMethod('somename');
+        $phpDocs = $method->getPHPDoc();
+        $mods    = $method->GetMods();
+        $this->assertTrue($phpDocs instanceof \PhpParser\Comment\Doc);
+        $this->assertEquals(__DIR__ . '/features/1.php', $method->getFile());
+        $this->assertEquals(array('public', 'static'), $mods);
+        $this->assertEquals(array(
+            $class,
+            $class->getProperty('$foo'),
+            $class->getProperty('$xxx'),
+            $class->getMethod('somename'),
+        ), $parser->getPHPDocs());
+    }
+
     public function testProperties()
     {
         $parser = new ClassInfo();
