@@ -97,8 +97,7 @@ class ParseTest extends PHPUnit\Framework\TestCase
 
     public function testMethods()
     {
-        $parser = new ClassInfo();
-        $parser->parse(__DIR__ . '/features/1.php');
+        $parser = new ClassInfo(__DIR__ . '/features/1.php');
 
         $class = $parser->getClass('xxx\yy\foo');
 
@@ -108,6 +107,48 @@ class ParseTest extends PHPUnit\Framework\TestCase
         $this->assertFalse($method->isPrivate());
         $this->assertFalse($method->isAbstract());
         $this->assertTrue($method->getStartLine() < $method->getEndLine());
+    }
+
+    public function testSerialization()
+    {
+        $parser = new ClassInfo(__DIR__ . '/features/1.php');
+        $nclass = $parser->getClass('xxx\yy\foo');
+
+        $class = unserialize(serialize($nclass));
+        $this->assertEquals($nclass, $class);
+
+        $method  = $class->getMethod('somename');
+        $phpDocs = $method->getPHPDoc();
+        $mods    = $method->GetMods();
+        $this->assertTrue($phpDocs instanceof \PhpParser\Comment\Doc);
+        $this->assertEquals(__DIR__ . '/features/1.php', $method->getFile());
+        $this->assertEquals(null, $parser->getClass(uniqid()));
+        $this->assertEquals(array('public', 'static'), $mods);
+        $this->assertEquals(array(
+            $class,
+            $class->getProperty('$foo'),
+            $class->getProperty('$xxx'),
+            $class->getMethod('somename'),
+        ), $parser->getPHPDocs());
+        $args = $class->getMethod('somename')->getParameters(true);
+        $this->assertEquals(1, count($args));
+        $this->assertEquals('PhpParser\Node\Param', get_class($args[0]));
+    }
+
+    public function testClassNotFoundMethodProperty()
+    {
+        $parser = new ClassInfo(__DIR__ . '/features/1.php');
+        $nclass = $parser->getClass('xxx\yy\foo');
+        $this->assertNull($nclass->getProperty(uniqid()));
+        $this->assertNull($nclass->getMethod(uniqid()));
+    }
+
+    public function testClassToString()
+    {
+        $parser = new ClassInfo(__DIR__ . '/features/1.php');
+        $nclass = $parser->getClass('xxx\yy\foo');
+
+        $this->assertEquals('xxx\yy\foo', (string)$nclass);
     }
 
     public function testPHPDocs()
@@ -120,6 +161,7 @@ class ParseTest extends PHPUnit\Framework\TestCase
         $mods    = $method->GetMods();
         $this->assertTrue($phpDocs instanceof \PhpParser\Comment\Doc);
         $this->assertEquals(__DIR__ . '/features/1.php', $method->getFile());
+        $this->assertEquals(null, $parser->getClass(uniqid()));
         $this->assertEquals(array('public', 'static'), $mods);
         $this->assertEquals(array(
             $class,
