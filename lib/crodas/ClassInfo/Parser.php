@@ -63,7 +63,7 @@ class Parser extends PhpParser\NodeVisitorAbstract
 
     public function parseFunction(Node $node, $name)
     {
-        $function = new Definition\TFunction($name);
+        $function = new Definition\TFunction($name, $this->file);
         $function->setParameters($node->params);
         $function->setPHPDoc($node->getDocComment());
 
@@ -127,7 +127,7 @@ class Parser extends PhpParser\NodeVisitorAbstract
                         $class->setStartLine($stmt);
                     }
                 } else if ($stmt instanceof Stmt\Property) {
-                    $property = new Definition\TProperty('$'. $stmt->props[0]->name);
+                    $property = new Definition\TProperty('$'. $stmt->props[0]->name, $this->file);
                     $this->setMods($stmt, $property);
                     $property->setPHPDoc($stmt->getDocComment());
                     $property->setStartLine($stmt);
