@@ -71,6 +71,13 @@ class ClassInfo
 
     }
 
+    /**
+     * Returns all the elements which has phpdocs
+     *
+     * Returns classes, methods and properties which has phpdocs.
+     *
+     * @return array
+     */
     public function getPHPDocs()
     {
         $elements = array();
@@ -94,11 +101,21 @@ class ClassInfo
         return $elements;
     }
 
+    /**
+     * Return all the classes defined in the files parsed
+     *
+     * @return array
+     */
     public function getClasses()
     {
         return $this->visitor->getClasses();
     }
 
+    /**
+     * Returns a TClass object by the name or null
+     *
+     * @return TClass object or null
+     */
     public function getClass($name)
     {
         $classes = $this->visitor->GetClasses();
@@ -109,15 +126,27 @@ class ClassInfo
         return $classes[$name];;
     }
 
+    /**
+     * Returns all the functions found by the parser
+     *
+     * @return array
+     */
     public function getFunctions()
     {
         return $this->visitor->getFunctions();
     }
 
+    /**
+     * Parses a file
+     *
+     * @return $this
+     */
     public function parse($file)
     {
         $this->visitor->setFile($file);
         $stmts = $this->parser->parse(file_get_contents($file));
         $stmts = $this->traverser->traverse($stmts);
+
+        return $this;
     }
 }
