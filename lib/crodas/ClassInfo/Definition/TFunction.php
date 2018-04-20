@@ -36,6 +36,8 @@
 */
 namespace crodas\ClassInfo\Definition;
 
+use PhpParser\Node\Param;
+
 class TFunction extends TBase
 {
     protected $args;
@@ -50,6 +52,9 @@ class TFunction extends TBase
     {
         if (!$object) {
             return array_map(function($a) {
+                if ($a instanceof Param && !empty($a->var)) {
+                    $a = $a->var;
+                }
                 return '$'. $a->name;
             }, $this->args);
         }
