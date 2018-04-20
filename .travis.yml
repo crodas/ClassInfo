@@ -8,6 +8,7 @@ php:
   - 5.6
   - 7.0
   - 7.1
+  - 7.2
 
 matrix:
   include:
@@ -26,9 +27,6 @@ matrix:
       dist: trusty
       group: stable
     - php: hhvm-3.18
-      dist: trusty
-      group: stable
-    - php: hhvm
       dist: trusty
       group: stable
 
